@@ -1,21 +1,30 @@
 import math 
 
-class Point:
-    def __init__(self,x,y,z=None,color = 'red') -> None:
+class Generic_Figure:
+    def __init__(self,color) -> None:
+        self.color = color
+        self.ref = None
+
+
+class Point(Generic_Figure):
+    def __init__(self,x,y,z=None,color = 'red',size = 25) -> None:
+        super().__init__(color)
         self.x =x
         self.y =y
         self.z =z
-        self.color = color
+        self.size = size
+        self.printed_point_ref = None
     
     def __str__(self) -> str:
 
         return f'({self.x},{self.y})'
 
-class Edge:
-    def __init__(self,point1:Point,point2:Point,color = 'blue') -> None:
+class Edge(Generic_Figure):
+    def __init__(self,point1:Point,point2:Point,color = 'blue',thickness=20) -> None:
+          super().__init__(color)
           self.point1 = point1
           self.point2 = point2
-          self.color = color
+          self.thickness = thickness
 
     def __len__(self):
         return math.sqrt(
@@ -27,25 +36,32 @@ class Edge:
 
 class Graph:
     def __init__(self,points =[],edges=[]) -> None:
-        self.points:list = points
-        self.edges:list = edges
+        self.points:list[Point] = points
+        self.edges:list[Edge] = edges
 
     def add_point(self,point):
         self.points.append(point)
     
     def add_points(self,points:list):
-        for p in points:
-            self.add_point(p)
+        self.points.extend(points)
     
     def add_edge(self,edge):
         self.edges.append(edge)
 
     def add_adges(self,edges):
-        for e in edges:
-            self.add_edge(e)
+        self.edges.extend(edges)
 
 
+class Square:
+    def __init__(self,top_left_point,bottm_right_point,color = 'red',facecolor=(1, 0, 0, 0.3)) -> None:
+        self.top_left_point:Point = top_left_point
+        self.bottom_right_point:Point = bottm_right_point
+        self.color = color
+        self.facecolor = facecolor
 
+    def is_inside(self,point:Point):
+        if(self.top_left_point.x <= point.x and self.bottom_right_point.x >= point.x and self.top_left_point.y >= point.y and self.bottom_right_point<= point.x): return True
+        return False
 
 def real_to_map_index(real_coord:Point, array_origin:Point, map_size:Point, array_size:Point) -> Point:
         # Calculate the difference between the real coordinate and the array origin

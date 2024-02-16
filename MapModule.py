@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from cartopy.io import srtm
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -13,7 +14,7 @@ import GraphicalUtils
 
 
 class Map:
-    def __init__(self,bounds,heights,graph = None) -> None:
+    def __init__(self,bounds,heights,graph = None,no_fly_zones:list[GraphicalUtils.Square] = []) -> None:
         self.bounds = bounds
         self.heights = heights
 
@@ -21,6 +22,8 @@ class Map:
             self.marked_graph:Graph = graph
         else:
             self.marked_graph = Graph()
+
+        self.no_fly_zones:list[GraphicalUtils.Square] = no_fly_zones
 
         self.map_heights= (self.bounds[3]-self.bounds[1])
         self.map_width = (self.bounds[2]-self.bounds[0])
@@ -54,6 +57,7 @@ class Map:
         return Map(cropped_bounds,cropped_heights)
     
     def print(self):
+
         # Tel Aviv coordinates
         lat = self.bounds[1]
         lon = self.bounds[0]
@@ -66,6 +70,10 @@ class Map:
         # Create a figure and axis with Cartopy projection
         fig, ax = plt.subplots(subplot_kw={'projection': ccrs.PlateCarree()})
 
+        #clean the figure from any printed things
+        for artist in plt.gca().get_children():
+            artist.remove()
+            
         # Add coastlines and other features
         ax.add_feature(cfeature.BORDERS, linestyle=':')
         ax.add_feature(cfeature.COASTLINE)
@@ -88,10 +96,18 @@ class Map:
 
 
         for point in self.marked_graph.points:
-            ax.scatter(point.y, point.x, color=point.color, marker='o', s=50, transform=ccrs.PlateCarree(), label='Marker')
+            point.ref =  ax.scatter(point.y, point.x, color=point.color, marker='o', s=point.size, transform=ccrs.PlateCarree(), label='Marker')
         
         for edges in self.marked_graph.edges:
             pass
+
+            
+        for z in self.no_fly_zones:
+            width = abs(z.top_left_point.y - z.bottom_right_point.y)
+            height = abs(z.top_left_point.x - z.bottom_right_point.x)
+
+            square = patches.Rectangle((z.top_left_point.y,z.top_left_point.x-height), width, height, linewidth=1, edgecolor='r', facecolor= z.facecolor)
+            ax.add_patch(square)
             
         # Set title and show the plot
         plt.title('Tel Aviv - Height Map')
