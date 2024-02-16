@@ -7,7 +7,7 @@ import cartopy.feature as cfeature
 import rasterio
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER
 from rasterio.plot import show
-from GraphicalUtils import Point,real_to_map_index,Graph
+from GraphicalUtils import Point,real_to_map_index,Graph, Generic_Figure
 import os
 from pprint import pprint
 import GraphicalUtils
@@ -30,6 +30,12 @@ class Map:
         
         #BoundingBox(left=34.99986111111111, bottom=29.999861111111112, right=36.000138888888884, top=31.00013888888889)
     
+    def get_arr_indexes_from_point(self,point:Point)->Point:
+        return Point(
+            int(GraphicalUtils.map_value(point.x,self.bounds[0],self.bounds[2],0,len(self.heights))),
+            int(GraphicalUtils.map_value(point.y,self.bounds[1],self.bounds[3],0,len(self.heights[0])))
+        )
+    
     def crop(self,top_left_point:Point = None,bottom_right_point:Point = None):
         if(not top_left_point):
             top_left_point = self.get_top_left_corner()
@@ -37,15 +43,9 @@ class Map:
             bottom_right_point = self.get_bottomn_right_corner()
         
         
-        top_left_map_index :Point = Point(
-            int(GraphicalUtils.map_value(top_left_point.x,self.bounds[0],self.bounds[2],0,len(self.heights))),
-            int(GraphicalUtils.map_value(top_left_point.y,self.bounds[1],self.bounds[3],0,len(self.heights[0])))
-        )
+        top_left_map_index :Point = self.get_arr_indexes_from_point(top_left_point)
 
-        bottom_right_point_index :Point = Point(
-            int(GraphicalUtils.map_value(bottom_right_point.x,self.bounds[0],self.bounds[2],0,len(self.heights))),
-            int(GraphicalUtils.map_value(bottom_right_point.y,self.bounds[1],self.bounds[3],0,len(self.heights[0])))
-        )
+        bottom_right_point_index :Point = self.get_arr_indexes_from_point(bottom_right_point)
 
 
         cropped_bounds = [bottom_right_point.x,top_left_point.y,top_left_point.x,bottom_right_point.y]
@@ -70,10 +70,6 @@ class Map:
         # Create a figure and axis with Cartopy projection
         fig, ax = plt.subplots(subplot_kw={'projection': ccrs.PlateCarree()})
 
-        #clean the figure from any printed things
-        for artist in plt.gca().get_children():
-            artist.remove()
-            
         # Add coastlines and other features
         ax.add_feature(cfeature.BORDERS, linestyle=':')
         ax.add_feature(cfeature.COASTLINE)
@@ -98,8 +94,8 @@ class Map:
         for point in self.marked_graph.points:
             point.ref =  ax.scatter(point.y, point.x, color=point.color, marker='o', s=point.size, transform=ccrs.PlateCarree(), label='Marker')
         
-        for edges in self.marked_graph.edges:
-            pass
+        for edge in self.marked_graph.edges:
+            edge.ref =  plt.plot([edge.point1.y, edge.point2.y], [edge.point1.x, edge.point2.x], color=edge.color, linestyle='-', linewidth=edge.thickness)
 
             
         for z in self.no_fly_zones:
@@ -113,6 +109,12 @@ class Map:
         plt.title('Tel Aviv - Height Map')
         return plt
 
+    def delete_element(self,element:Generic_Figure):
+        element.ref.remove()
+    
+    def get_height_at_point(self,point):
+        scaled_point = self.get_arr_indexes_from_point(point)
+        return self.heights[scaled_point.x][scaled_point.y]
 
         
 def get_map_info(tlf_file) -> Map:

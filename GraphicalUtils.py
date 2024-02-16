@@ -20,7 +20,7 @@ class Point(Generic_Figure):
         return f'({self.x},{self.y})'
 
 class Edge(Generic_Figure):
-    def __init__(self,point1:Point,point2:Point,color = 'blue',thickness=20) -> None:
+    def __init__(self,point1:Point,point2:Point,color = 'blue',thickness=1) -> None:
           super().__init__(color)
           self.point1 = point1
           self.point2 = point2
@@ -32,6 +32,9 @@ class Edge(Generic_Figure):
             ((self.point1.x ** 2 - self.point2.x ** 2) **2) +
             ((self.point1.y ** 2 - self.point2.y ** 2)**2)
         )
+    
+    def __str__(self) -> str:
+        return f'Point 1: {str(self.point1)}, Point 2: {str(self.point2)}'
 
 
 class Graph:
@@ -60,7 +63,11 @@ class Square:
         self.facecolor = facecolor
 
     def is_inside(self,point:Point):
-        if(self.top_left_point.x <= point.x and self.bottom_right_point.x >= point.x and self.top_left_point.y >= point.y and self.bottom_right_point<= point.x): return True
+        if( point.x <= self.top_left_point.x and point.x >= self.bottom_right_point.x):
+            if(point.y >= self.top_left_point.y and point.y <= self.bottom_right_point.y):
+                if(self.top_left_point.x ==32 and self.top_left_point.y == 34.92):
+                    print('0000000000000000000')
+                return True
         return False
 
 def real_to_map_index(real_coord:Point, array_origin:Point, map_size:Point, array_size:Point) -> Point:
