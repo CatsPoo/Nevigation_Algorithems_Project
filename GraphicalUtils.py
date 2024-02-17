@@ -1,4 +1,5 @@
 import math 
+from shapely.geometry import LineString
 
 class Generic_Figure:
     def __init__(self,color) -> None:
@@ -35,7 +36,34 @@ class Edge(Generic_Figure):
     
     def __str__(self) -> str:
         return f'Point 1: {str(self.point1)}, Point 2: {str(self.point2)}'
+    
+    def ls_intersects_line(self, line2):
+        # Check if the lines are parallel
+        det = (line2.point2.y - line2.point1.y) * (self.point2.x - self.point1.x) - \
+            (line2.point2.x - line2.point1.x) * (self.point2.y - self.point1.y)
 
+        # If lines are parallel, they don't intersect
+        if det == 0:
+            return False, None
+
+        # Calculate intersection point
+        s = ((line2.point2.x - line2.point1.x) * (self.point1.y - line2.point1.y) - \
+            (line2.point2.y - line2.point1.y) * (self.point1.x - line2.point1.x)) / det
+        t = ((self.point2.x - self.point1.x) * (self.point1.y - line2.point1.y) - \
+            (self.point2.y - self.point1.y) * (self.point1.x - line2.point1.x)) / det
+
+        # Check if intersection point is within the line segments
+        if  ((0 <= s <= 1) and (0 <= t <= 1)):
+            intersection_x = self.point1.x + (t * (self.point2.x - self.point1.x))
+            intersection_y = self.point1.y + (t * (self.point2.y - self.point1.y))
+
+            return True, Point(intersection_x,intersection_y)
+        else: return False, None
+
+            
+
+    
+    
 
 class Graph:
     def __init__(self,points =[],edges=[]) -> None:
@@ -65,10 +93,28 @@ class Square:
     def is_inside(self,point:Point):
         if( point.x <= self.top_left_point.x and point.x >= self.bottom_right_point.x):
             if(point.y >= self.top_left_point.y and point.y <= self.bottom_right_point.y):
-                if(self.top_left_point.x ==32 and self.top_left_point.y == 34.92):
-                    print('0000000000000000000')
                 return True
         return False
+    
+    def is_edge_crossing(self,edge:Edge):
+        all_squre_points = [
+            self.top_left_point,
+            Point(self.top_left_point.x,self.bottom_right_point.y),
+            self.bottom_right_point,
+            Point(self.bottom_right_point.x,self.top_left_point.y)
+        ]
+        squre_edges: list[Edge] = [
+            Edge(all_squre_points[0],all_squre_points[1]),
+            Edge(all_squre_points[1],all_squre_points[2]),
+            Edge(all_squre_points[2],all_squre_points[3]),
+            Edge(all_squre_points[3],all_squre_points[0]),
+        ]
+        for s_edge in squre_edges:
+            is_cut = s_edge.ls_intersects_line(edge)
+            if(is_cut[0]):
+                 return True
+        return False
+
 
 def real_to_map_index(real_coord:Point, array_origin:Point, map_size:Point, array_size:Point) -> Point:
         # Calculate the difference between the real coordinate and the array origin
