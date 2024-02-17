@@ -1,6 +1,11 @@
 import math 
 from shapely.geometry import LineString
+from enum import Enum
 
+class Point_Type(Enum):
+    COSTUMER = 1
+    PHARMECY = 2
+    Regular = 3
 class Generic_Figure:
     def __init__(self,color) -> None:
         self.color = color
@@ -8,13 +13,14 @@ class Generic_Figure:
 
 
 class Point(Generic_Figure):
-    def __init__(self,x,y,z=None,color = 'red',size = 25) -> None:
+    def __init__(self,x,y,z=None,color = 'red',size = 25,point_type = Point_Type.Regular) -> None:
         super().__init__(color)
         self.x =x
         self.y =y
         self.z =z
         self.size = size
         self.printed_point_ref = None
+        self.type = point_type
     
     def __str__(self) -> str:
 
@@ -39,18 +45,18 @@ class Edge(Generic_Figure):
     
     def ls_intersects_line(self, line2):
         # Check if the lines are parallel
-        det = (line2.point2.y - line2.point1.y) * (self.point2.x - self.point1.x) - \
-            (line2.point2.x - line2.point1.x) * (self.point2.y - self.point1.y)
+        det = (line2.point2.x - line2.point1.x) * (self.point2.y - self.point1.y) - \
+            (line2.point2.y - line2.point1.y) * (self.point2.x - self.point1.x)
 
         # If lines are parallel, they don't intersect
         if det == 0:
             return False, None
 
         # Calculate intersection point
-        s = ((line2.point2.x - line2.point1.x) * (self.point1.y - line2.point1.y) - \
-            (line2.point2.y - line2.point1.y) * (self.point1.x - line2.point1.x)) / det
-        t = ((self.point2.x - self.point1.x) * (self.point1.y - line2.point1.y) - \
-            (self.point2.y - self.point1.y) * (self.point1.x - line2.point1.x)) / det
+        s = ((line2.point2.y - line2.point1.y) * (self.point1.x - line2.point1.x) - \
+            (line2.point2.x - line2.point1.x) * (self.point1.y - line2.point1.y)) / det
+        t = ((self.point2.y - self.point1.y) * (self.point1.x - line2.point1.x) - \
+            (self.point2.x - self.point1.x) * (self.point1.y - line2.point1.y)) / det
 
         # Check if intersection point is within the line segments
         if  ((0 <= s <= 1) and (0 <= t <= 1)):
