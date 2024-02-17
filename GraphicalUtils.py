@@ -33,12 +33,12 @@ class Edge(Generic_Figure):
           self.point2 = point2
           self.thickness = thickness
 
-    def __len__(self):
+    def length(self):
         return math.sqrt(
-            ((self.point1.z ** 2 - self.point2.z ** 2)**2) +
-            ((self.point1.x ** 2 - self.point2.x ** 2) **2) +
-            ((self.point1.y ** 2 - self.point2.y ** 2)**2)
-        )
+            math.pow(self.point1.x - self.point2.x, 2)+
+            math.pow(self.point1.y - self.point2.y, 2)+
+            math.pow(self.point1.z - self.point2.z,2)
+            )
     
     def __str__(self) -> str:
         return f'Point 1: {str(self.point1)}, Point 2: {str(self.point2)}'
@@ -87,6 +87,17 @@ class Graph:
 
     def add_adges(self,edges):
         self.edges.extend(edges)
+
+    def get_point_neighbors(self,point:Point) -> list[Edge]:
+        #return tuple  list (point, intire edge)
+        res = []
+        for e in self.edges:
+            if(point == e.point1):
+                res.append(e)
+        return res
+        
+
+
 
 
 class Square:
