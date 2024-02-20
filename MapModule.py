@@ -122,7 +122,6 @@ def get_map_info(tlf_file) -> Map:
     return Map(src.bounds, src.read()[0][::-1])
 
 
-
 def merge_horizontal_maps(left_map:Map,right_map:Map) ->Map:
     new_heights = []
     for i in range(left_map.heights.shape[0]):

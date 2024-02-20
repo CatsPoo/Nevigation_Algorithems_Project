@@ -95,6 +95,16 @@ class Graph:
             if(point == e.point1):
                 res.append(e)
         return res
+    
+    def get_edge(self,point1:Point,point2:Point) -> Edge:
+        for e in self.edges:
+            if(e.point1 == point1 and e.point2 == point2): return e
+        return None
+    
+    def get_point(self,x,y,z) -> Point:
+        for p in self.points:
+            if(p.x == x and p.y == y and p.z == z): return p
+        return None
         
 
 

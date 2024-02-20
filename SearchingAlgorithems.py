@@ -8,10 +8,10 @@ class HeapNode:
         self.point = point
 
     def __gt__(self, other):
-        return self.distance > other.distance
+        return self.distance < other.distance
     
     def __lt__(self,other):
-        return self.distance < other.distance
+        return self.distance > other.distance
 
 
 class Dijkstra:
@@ -54,4 +54,5 @@ class Dijkstra:
         while current_point is not None:
             path.append(current_point)
             current_point = self.predecessors[current_point]
+        
         return path[::-1]
