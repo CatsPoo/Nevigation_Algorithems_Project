@@ -23,8 +23,22 @@ class Point(Generic_Figure):
         self.type = point_type
     
     def __str__(self) -> str:
-
+        if(self.z):
+            return f'({self.x},{self.y},{self.z})'
         return f'({self.x},{self.y})'
+    
+    def __add__(self,other):
+        if(self.z and other.z):
+            return Point(self.x + other.x , self.y + other.y , self.z + other.z)
+        else:
+            return Point(self.x + other.x , self.y + other.y , None)
+        
+    def __sub__(self,other):
+        if(self.z and other.z):
+            return Point(self.x - other.x , self.y - other.y , self.z - other.z)
+        else:
+            return Point(self.x - other.x , self.y - other.y , None)
+
 
 class Edge(Generic_Figure):
     def __init__(self,point1:Point,point2:Point,color = 'blue',thickness=1) -> None:
@@ -32,6 +46,7 @@ class Edge(Generic_Figure):
           self.point1 = point1
           self.point2 = point2
           self.thickness = thickness
+          self.is_part_of_path = False
 
     def length(self):
         return math.sqrt(

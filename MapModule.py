@@ -56,6 +56,8 @@ class Map:
 
         return Map(cropped_bounds,cropped_heights)
     
+
+
     def print(self):
 
         # Tel Aviv coordinates
